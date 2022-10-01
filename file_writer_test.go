@@ -22,7 +22,7 @@ func TestFileWriterAutoCorrect(t *testing.T) {
 	}
 	fileOne := bytes.Repeat([]byte("X"), 3)
 
-	err := w.WriteHeader(hdrOne)
+	err := w.WriteHeader(&hdrOne)
 	if err != nil {
 		t.Fatalf("write first header: %v", err)
 	}
@@ -45,7 +45,7 @@ func TestFileWriterAutoCorrect(t *testing.T) {
 	// file will be writing in two write calls
 	fileTwo := append(bytes.Repeat([]byte("Y"), 3), bytes.Repeat([]byte("Z"), 3)...)
 
-	err = w.WriteHeader(hdrTwo)
+	err = w.WriteHeader(&hdrTwo)
 	if err != nil {
 		t.Fatalf("write second header: %v", err)
 	}
@@ -148,7 +148,7 @@ func TestFileReCreateEvenFile(t *testing.T) {
 
 	w := newFileWriter(t, f)
 
-	err := w.WriteHeader(Header{
+	err := w.WriteHeader(&Header{
 		Name:    "first_even",
 		ModTime: time.Unix(1664113056, 0),
 		UID:     501,
@@ -165,7 +165,7 @@ func TestFileReCreateEvenFile(t *testing.T) {
 		t.Fatalf("write first file: %v", err)
 	}
 
-	err = w.WriteHeader(Header{
+	err = w.WriteHeader(&Header{
 		Name:    "second_even",
 		ModTime: time.Unix(1664113074, 0),
 		UID:     501,
@@ -211,7 +211,7 @@ func TestFileReCreateEvenFileUnknownSize(t *testing.T) {
 
 	w := newFileWriter(t, f)
 
-	err := w.WriteHeader(Header{
+	err := w.WriteHeader(&Header{
 		Name:    "first_even",
 		ModTime: time.Unix(1664113056, 0),
 		UID:     501,
@@ -228,7 +228,7 @@ func TestFileReCreateEvenFileUnknownSize(t *testing.T) {
 		t.Fatalf("write first file: %v", err)
 	}
 
-	err = w.WriteHeader(Header{
+	err = w.WriteHeader(&Header{
 		Name:    "second_even",
 		ModTime: time.Unix(1664113074, 0),
 		UID:     501,
@@ -272,7 +272,7 @@ func TestFileWriteTooLong(t *testing.T) {
 
 	w := newFileWriter(t, tempFile(t))
 
-	err := w.WriteHeader(Header{Size: 2})
+	err := w.WriteHeader(&Header{Size: 2})
 	if err != nil {
 		t.Fatalf("write header: %v", err)
 	}
@@ -288,7 +288,7 @@ func TestFileWriteTooShort(t *testing.T) {
 
 	w := newFileWriter(t, tempFile(t))
 
-	err := w.WriteHeader(Header{Size: 2})
+	err := w.WriteHeader(&Header{Size: 2})
 	if err != nil {
 		t.Fatalf("write header: %v", err)
 	}
@@ -298,7 +298,7 @@ func TestFileWriteTooShort(t *testing.T) {
 		t.Fatalf("write: %v", err)
 	}
 
-	err = w.WriteHeader(Header{})
+	err = w.WriteHeader(&Header{})
 	if !errors.Is(err, ErrWriteTooShort) {
 		t.Fatalf("write did not result in %q", ErrWriteTooShort.Error())
 	}
@@ -312,7 +312,7 @@ func TestFileExtendedFileName(t *testing.T) {
 	f := tempFile(t)
 	w := newFileWriter(t, f)
 
-	err := w.WriteHeader(Header{
+	err := w.WriteHeader(&Header{
 		Name:    "very_long_file_name_that_does_not_fit_into_name_field.txt",
 		ModTime: time.Unix(1664483321, 0),
 		UID:     501,
@@ -353,7 +353,7 @@ func TestFileExtendedFileNameUnknownSize(t *testing.T) {
 	f := tempFile(t)
 	w := newFileWriter(t, f)
 
-	err := w.WriteHeader(Header{
+	err := w.WriteHeader(&Header{
 		Name:    "very_long_file_name_that_does_not_fit_into_name_field.txt",
 		ModTime: time.Unix(1664483321, 0),
 		UID:     501,

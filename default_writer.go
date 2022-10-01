@@ -14,7 +14,9 @@ type defaultWriter struct {
 	remainingBytes      int64
 }
 
-func (w *defaultWriter) WriteHeader(hdr Header) error {
+var _ Writer = &defaultWriter{}
+
+func (w *defaultWriter) WriteHeader(hdr *Header) error {
 	// emit a global header before writing the first header
 	if !w.emittedGlobalHeader {
 		err := writeGlobalHeader(w.w)
@@ -32,7 +34,7 @@ func (w *defaultWriter) WriteHeader(hdr Header) error {
 		return fmt.Errorf("finalize previous entry: %w", err)
 	}
 
-	w.currentHeader = &hdr
+	w.currentHeader = hdr
 
 	if hdr.Size == UnknownSize { // auto-correcting (buffered) mode
 		// prepare a buffer for the data and flush it later in the next
@@ -46,7 +48,7 @@ func (w *defaultWriter) WriteHeader(hdr Header) error {
 	w.currentBuffer = nil
 	w.remainingBytes = hdr.Size
 
-	return writeHeader(w.w, *w.currentHeader)
+	return writeHeader(w.w, w.currentHeader)
 }
 
 func (w *defaultWriter) Write(data []byte) (int, error) {
@@ -88,7 +90,7 @@ func (w *defaultWriter) finalizeEntry() error {
 		w.currentHeader.Size = int64(w.currentBuffer.Len())
 
 		// now we can flush the corrected header and buffer
-		err := writeHeader(w.w, *w.currentHeader)
+		err := writeHeader(w.w, w.currentHeader)
 		if err != nil {
 			return fmt.Errorf("flushing previous header: %w", err)
 		}

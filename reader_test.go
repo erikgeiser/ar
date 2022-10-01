@@ -31,7 +31,7 @@ func TestReader(t *testing.T) {
 		t.Fatalf("read first header: %v", err)
 	}
 
-	if firstHdr != expectedFirstHdr {
+	if *firstHdr != expectedFirstHdr {
 		t.Fatalf("first header mismatch:\ngot:      %#v\nexpected: %#v",
 			firstHdr, expectedFirstHdr)
 	}
@@ -63,7 +63,7 @@ func TestReader(t *testing.T) {
 		t.Fatalf("read first header: %v", err)
 	}
 
-	if secondHdr != expectedSecondHdr {
+	if *secondHdr != expectedSecondHdr {
 		t.Fatalf("second header mismatch:\ngot:      %#v\nexpected: %#v",
 			secondHdr, expectedSecondHdr)
 	}

@@ -54,21 +54,21 @@ func NewReader(r io.Reader) (*Reader, error) {
 // reading the corresponding body in subsequent Read calls. If Next is called
 // before the previous file is completely read, the remaining bytes of the
 // previous file will be skipped automatically.
-func (r *Reader) Next() (Header, error) {
-	var hdr Header
-
+func (r *Reader) Next() (*Header, error) {
 	// skip unread bytes of previous entry and padding if necessary
 	if r.expectPadding || r.remainingSize > 0 {
 		_, err := io.CopyN(io.Discard,
 			r.r, r.remainingSize+boolToInt64(r.expectPadding))
 		if err != nil {
-			return hdr, fmt.Errorf("skip to next header: %w", err)
+			return nil, fmt.Errorf("skip to next header: %w", err)
 		}
 	}
 
+	var hdr Header
+
 	err := r.parseHeader(&hdr)
 	if err != nil {
-		return hdr, fmt.Errorf("parse header: %w", err)
+		return nil, fmt.Errorf("parse header: %w", err)
 	}
 
 	r.remainingSize = hdr.Size
@@ -78,7 +78,7 @@ func (r *Reader) Next() (Header, error) {
 		r.expectPadding = true
 	}
 
-	return hdr, nil
+	return &hdr, nil
 }
 
 // Read reads the file content of the entry whose header was previously read using Next.
@@ -137,7 +137,7 @@ func (r *Reader) parseHeader(hdr *Header) error {
 		nextHeader, err := r.Next()
 
 		// present the next header to the caller
-		*hdr = nextHeader
+		*hdr = *nextHeader
 
 		return err
 	case len(gnuExtendedNameOffset) == 2 && !r.DisableGnuExtensions:

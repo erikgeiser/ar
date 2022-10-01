@@ -16,6 +16,8 @@ type fileWriter struct {
 	emittedGlobalHeader    bool
 }
 
+var _ Writer = &fileWriter{}
+
 type fileLike interface {
 	io.Seeker
 	io.Writer
@@ -24,7 +26,7 @@ type fileLike interface {
 
 var _ fileLike = &os.File{} // ensure *os.File implements fileLike
 
-func (w *fileWriter) WriteHeader(hdr Header) error {
+func (w *fileWriter) WriteHeader(hdr *Header) error {
 	// emit a global header before writing the first header
 	if !w.emittedGlobalHeader {
 		err := writeGlobalHeader(w.f)
@@ -42,7 +44,7 @@ func (w *fileWriter) WriteHeader(hdr Header) error {
 		return fmt.Errorf("finalize previous entry: %w", err)
 	}
 
-	w.currentHeader = &hdr
+	w.currentHeader = hdr
 
 	if hdr.Size == UnknownSize { // auto-correcting mode
 		// calculate the offset of the size field in the header which has to be

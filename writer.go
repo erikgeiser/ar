@@ -16,7 +16,7 @@ type Writer interface {
 	// header. By setting Header.Size == UnknownSize, the file size will be
 	// auto-corrected. File names longer than 16 characters will be written
 	// using BSD file name extension.
-	WriteHeader(Header) error
+	WriteHeader(*Header) error
 
 	// Write writes the actual file content corresponding the the file header
 	// that was previously written using WriteHeader. An ar file can be written
@@ -46,7 +46,7 @@ func writeGlobalHeader(w io.Writer) error {
 	return err
 }
 
-func writeHeader(w io.Writer, hdr Header) error {
+func writeHeader(w io.Writer, hdr *Header) error {
 	isExtendedName := hdr.hasExtendedName()
 
 	name := hdr.Name

@@ -58,7 +58,7 @@ func ExampleWriter_WriteHeader_unknownSize() { //nolint:nosnakecase
 
 	// write a file header for the compressed data while signaling that the file
 	// size needs to be automatically determined using the UnknownSize constant
-	err := arWriter.WriteHeader(Header{
+	err := arWriter.WriteHeader(&Header{
 		Name:    "data.gz",
 		ModTime: time.Now(),
 		Mode:    0o644,

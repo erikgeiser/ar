@@ -116,10 +116,10 @@ func (h *Header) extendedNameBytes() []byte {
 
 // NewHeaderFromFile creates an ar header based on the stat information of a
 // file.
-func NewHeaderFromFile(fileName string) (Header, error) {
+func NewHeaderFromFile(fileName string) (*Header, error) {
 	stat, err := os.Stat(fileName)
 	if err != nil {
-		return Header{}, fmt.Errorf("stat: %w", err)
+		return nil, fmt.Errorf("stat: %w", err)
 	}
 
 	return NewHeaderFromFileInfo(stat), nil
@@ -127,8 +127,8 @@ func NewHeaderFromFile(fileName string) (Header, error) {
 
 // NewHeaderFromFileInfo creates an ar header based on the provided fs.FileInfo
 // as returned for examply by os.Stat.
-func NewHeaderFromFileInfo(stat fs.FileInfo) Header {
-	return Header{
+func NewHeaderFromFileInfo(stat fs.FileInfo) *Header {
+	return &Header{
 		Name:    stat.Name(),
 		ModTime: stat.ModTime(),
 		Mode:    uint32(stat.Mode()),
