@@ -135,11 +135,14 @@ func (r *Reader) parseHeader(hdr *Header) error {
 		}
 
 		nextHeader, err := r.Next()
+		if err != nil {
+			return err
+		}
 
 		// present the next header to the caller
 		*hdr = *nextHeader
 
-		return err
+		return nil
 	case len(gnuExtendedNameOffset) == 2 && !r.DisableGnuExtensions:
 		// lookup actual file name from the Gnu file name lookup table
 		if r.gnuNameBuffer == nil {
@@ -155,8 +158,9 @@ func (r *Reader) parseHeader(hdr *Header) error {
 			return fmt.Errorf("invalid Gnu name table offset: %w", err)
 		}
 
-		if nameOffset >= 0 {
-			return fmt.Errorf("Gnu name table offset %d out of bounds for table of size %d",
+		if nameOffset >= len(r.gnuNameBuffer) {
+			return fmt.Errorf( //nolint:stylecheck
+				"Gnu name table offset %d out of bounds for table of size %d",
 				nameOffset, len(r.gnuNameBuffer))
 		}
 
