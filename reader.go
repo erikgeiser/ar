@@ -151,6 +151,15 @@ func (r *Reader) parseHeader(hdr *Header) error {
 			return fmt.Errorf("parse BSD extended name offset: %w", err)
 		}
 
+		if nameOffset < 0 {
+			return fmt.Errorf("invalid Gnu name table offset: %w", err)
+		}
+
+		if nameOffset >= 0 {
+			return fmt.Errorf("Gnu name table offset %d out of bounds for table of size %d",
+				nameOffset, len(r.gnuNameBuffer))
+		}
+
 		// determine end of file name
 		terminatorIndex := bytes.Index(r.gnuNameBuffer[nameOffset:], []byte{'\n'})
 		if terminatorIndex < 0 {
