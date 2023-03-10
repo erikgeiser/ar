@@ -21,7 +21,7 @@ var _ Writer = &fileWriter{}
 type fileLike interface {
 	io.Seeker
 	io.Writer
-	WriteAt([]byte, int64) (int, error)
+	io.WriterAt
 }
 
 var _ fileLike = &os.File{} // ensure *os.File implements fileLike
@@ -98,7 +98,6 @@ func (w *fileWriter) finalizeEntry() error {
 			w.currentEntrySize += int64(w.currentHeader.extendedNameSize())
 		}
 
-		//nolint:gomnd
 		newSize, err := expandToByteField(strconv.FormatInt(w.currentEntrySize, 10),
 			sizeFieldSize)
 		if err != nil {

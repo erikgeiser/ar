@@ -23,6 +23,11 @@ linters:
     - exhaustruct
     - nonamedreturns
     - nosnakecase
+    - testableexamples
+    - sqlclosecheck
+    - varcheck
+    - structcheck
+    - deadcode
 linters-settings:
   exhaustive:
     default-signifies-exhaustive: true

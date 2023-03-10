@@ -258,7 +258,7 @@ func unpackUint64(field []byte) (int64, error) {
 		return 0, nil // Gnu file name lookup tables leave the field empty
 	}
 
-	return strconv.ParseInt(fieldString, 10, 64) //nolint:gomnd
+	return strconv.ParseInt(fieldString, 10, 64)
 }
 
 func unpackOctal(field []byte) (uint32, error) {
@@ -267,7 +267,7 @@ func unpackOctal(field []byte) (uint32, error) {
 		return 0, nil // Gnu file name lookup tables leave the field empty
 	}
 
-	i, err := strconv.ParseUint(octalStr, 8, 32) //nolint:gomnd
+	i, err := strconv.ParseUint(octalStr, 8, 32)
 	if err != nil {
 		return 0, fmt.Errorf("parse int: %w", err)
 	}

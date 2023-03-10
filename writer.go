@@ -18,9 +18,9 @@ type Writer interface {
 	// using BSD file name extension.
 	WriteHeader(*Header) error
 
-	// Write writes the actual file content corresponding the the file header
-	// that was previously written using WriteHeader. An ar file can be written
-	// in multiple consecutive Write calls.
+	// Write writes the actual file content corresponding the file header that
+	// was previously written using WriteHeader. An ar file can be written in
+	// multiple consecutive Write calls.
 	Write([]byte) (int, error)
 
 	// Close ensures that the complete ar content is flushed.
@@ -112,11 +112,10 @@ func writeHeader(w io.Writer, hdr *Header) error {
 }
 
 func packUint64(w io.Writer, value int64, fieldWidth int) error {
-	return packString(w, strconv.FormatInt(value, 10), fieldWidth) //nolint:gomnd
+	return packString(w, strconv.FormatInt(value, 10), fieldWidth)
 }
 
 func packOctal(w io.Writer, value uint32, fieldWidth int) error {
-	//nolint:gomnd
 	return packString(w, "100"+strconv.FormatUint(uint64(value), 8), fieldWidth)
 }
 
