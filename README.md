@@ -3,33 +3,31 @@
   <p align="center"><i>The Unix ar archive library for Go</i></p>
   <p align="center">
     <a href="https://pkg.go.dev/github.com/erikgeiser/ar"><img alt="Go Doc" src="https://img.shields.io/badge/godoc-reference-blue.svg?style=for-the-badge"></a>
-    <a href="https://github.com/erikgeiser/ar/actions?workflow=Tests"><img alt="GitHub Action: Tests" src=" https://img.shields.io/github/actions/workflow/status/erikgeiser/ar/tests.yml?branch=main&label=Tests&style=for-the-badge"></a>
-    </br>
+    <a href="https://github.com/erikgeiser/ar/actions?workflow=Tests"><img alt="GitHub Action: Tests" src="https://img.shields.io/github/actions/workflow/status/erikgeiser/ar/tests.yml?branch=main&label=Tests&style=for-the-badge"></a>
     <a href="https://github.com/erikgeiser/ar/actions?workflow=Check"><img alt="GitHub Action: Check" src="https://img.shields.io/github/actions/workflow/status/erikgeiser/ar/check.yml?branch=main&label=Check&style=for-the-badge"></a>
-    <a href="/LICENSE.md"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge"></a>
-    <a href="https://goreportcard.com/report/github.com/erikgeiser/ar"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/erikgeiser/ar?style=for-the-badge"></a>
+    <a href="/LICENSE"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge"></a>
 
   </p>
 </p>
 
-This library provides a reader and a writer for Unix `ar` archives. The API
+This library provides a reader and a writer for Unix `ar` archives. The API is
 heavily inspired by the `tar` module from Go's standard library. The following
 features set the library apart from other Go `ar` libraries such as
 [github.com/blakesmith/ar](https://github.com/blakesmith/ar):
 
 - **Automatic file size determination:** Add files without knowing their size
   beforehand. This is useful when compressing the files on the fly while writing
-  them to `ar` archive by stacking multiple `io.Writer`.
+  them to an `ar` archive by stacking multiple `io.Writer`s.
 - **Support for long file names:** The traditional `ar` format has a file name
   size limit of 16 characters. Multiple extensions have been created to work
   around this. `io.Writer` writes long archive names in BSD style and
-  `io.Reader` supports BSD and System V/Gnu style.
-- **Robust `io.Reader`/`io.Writer` APIs:** Files can be writting in multiple
+  `io.Reader` supports BSD and System V/GNU style.
+- **Robust `io.Reader`/`io.Writer` APIs:** Files can be written in multiple
   `Write` calls and they can be read in multiple `Read` calls.
 
 ## Reader
 
-The `ar` Reader can read traditional, BSD-style and System V/Gnu-style archives.
+The `ar` Reader can read traditional, BSD-style and System V/GNU-style archives.
 Symbol lookup tables are currently not supported.
 
 ```go
@@ -111,4 +109,4 @@ using the helper functions `NewHeaderFromFile` and `NewHeaderFromFileInfo`.
 ### Long file names
 
 If a file name has more than 16 characters, it will be written in BSD-style
-which can also be read by the Gnu/binutils `ar` tool.
+which can also be read by the GNU/binutils `ar` tool.
