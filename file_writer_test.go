@@ -42,7 +42,7 @@ func TestFileWriterAutoCorrect(t *testing.T) {
 		Size: UnknownSize,
 	}
 
-	// file will be writing in two write calls
+	// file will be written in two write calls
 	fileTwo := append(bytes.Repeat([]byte("Y"), 3), bytes.Repeat([]byte("Z"), 3)...)
 
 	err = w.WriteHeader(&hdrTwo)

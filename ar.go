@@ -35,7 +35,7 @@ const (
 )
 
 var (
-	// ErrWriteTooLong is returned when more bytes are written than advertized
+	// ErrWriteTooLong is returned when more bytes are written than advertised
 	// in the file header. ErrWriteTooLong is not returned in auto-correcting
 	// mode (when Header.Size == UnknownSize) where the header size is
 	// retroactively corrected instead.
@@ -43,7 +43,7 @@ var (
 
 	// ErrWriteTooShort is returned when a new header is appended or if the file
 	// is closed before writing as many bytes for the previous file entry as
-	// advertized in the corresponding header. ErrWriteTooShort is not returned
+	// advertised in the corresponding header. ErrWriteTooShort is not returned
 	// in auto-correcting mode (when Header.Size == UnknownSize) where the
 	// header size is retroactively corrected instead.
 	ErrWriteTooShort = fmt.Errorf("write too short")
@@ -58,7 +58,7 @@ const (
 	modTimeFieldSize = 12
 	uidFieldSize     = 6
 	gidFieldSize     = 6
-	modeFiledSize    = 8
+	modeFieldSize    = 8
 	sizeFieldSize    = 10
 
 	maxSize = 9999999999
@@ -92,7 +92,7 @@ type Header struct {
 	ModTime time.Time
 	// UID holds the file owner's UID.
 	UID int64
-	// GID holds the fole owner's GID.
+	// GID holds the file owner's GID.
 	GID int64
 	// Mode holds the file's mode.
 	Mode uint32
@@ -126,7 +126,7 @@ func NewHeaderFromFile(fileName string) (*Header, error) {
 }
 
 // NewHeaderFromFileInfo creates an ar header based on the provided fs.FileInfo
-// as returned for examply by os.Stat.
+// as returned for example by os.Stat.
 func NewHeaderFromFileInfo(stat fs.FileInfo) *Header {
 	return &Header{
 		Name:    stat.Name(),

@@ -27,7 +27,7 @@ func (w *defaultWriter) WriteHeader(hdr *Header) error {
 		w.emittedGlobalHeader = true
 	}
 
-	// ensure that the previous entry is completely finished and padding as
+	// ensure that the previous entry is completely finished and padding is
 	// applied
 	err := w.finalizeEntry()
 	if err != nil {
@@ -70,7 +70,7 @@ func (w *defaultWriter) Write(data []byte) (int, error) {
 
 	// in direct mode the header is already flushed and the data can be written
 	// directly without buffering while keeping tracks of the number of bytes
-	// written compared to the advertized file size
+	// written compared to the advertised file size
 	n, err := w.w.Write(data)
 	if err != nil {
 		return 0, fmt.Errorf("writing to buffer: %w", err)
@@ -100,7 +100,7 @@ func (w *defaultWriter) finalizeEntry() error {
 			return fmt.Errorf("flushing previous file content: %w", err)
 		}
 	default: // direct mode
-		// check if the advertized file size was written
+		// check if the advertised file size was written
 		if w.remainingBytes > 0 {
 			return fmt.Errorf(
 				"%d bytes missing for file %s of size %d: %w",

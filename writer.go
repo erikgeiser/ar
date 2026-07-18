@@ -3,7 +3,6 @@ package ar
 import (
 	"fmt"
 	"io"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -18,7 +17,7 @@ type Writer interface {
 	// using BSD file name extension.
 	WriteHeader(*Header) error
 
-	// Write writes the actual file content corresponding the file header that
+	// Write writes the actual file content corresponding to the file header that
 	// was previously written using WriteHeader. An ar file can be written in
 	// multiple consecutive Write calls.
 	Write([]byte) (int, error)
@@ -32,7 +31,7 @@ type Writer interface {
 // does not implement Seek, Write and WriteAt), auto-correcting the file size
 // requires Writer to buffer the file content in memory.
 func NewWriter(w io.Writer) Writer {
-	f, ok := w.(*os.File)
+	f, ok := w.(fileLike)
 	if ok {
 		return &fileWriter{f: f}
 	}
@@ -76,7 +75,7 @@ func writeHeader(w io.Writer, hdr *Header) error {
 		return fmt.Errorf("write GID: %w", err)
 	}
 
-	err = packOctal(w, hdr.Mode, modeFiledSize)
+	err = packOctal(w, hdr.Mode, modeFieldSize)
 	if err != nil {
 		return fmt.Errorf("write file mode: %w", err)
 	}

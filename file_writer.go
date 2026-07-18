@@ -37,7 +37,7 @@ func (w *fileWriter) WriteHeader(hdr *Header) error {
 		w.emittedGlobalHeader = true
 	}
 
-	// ensure that the previous entry is completely finished and padding as
+	// ensure that the previous entry is completely finished and padding is
 	// applied
 	err := w.finalizeEntry()
 	if err != nil {
@@ -55,7 +55,7 @@ func (w *fileWriter) WriteHeader(hdr *Header) error {
 		}
 
 		w.currentEntrySizeOffset = (headerOffset + nameFieldSize +
-			modTimeFieldSize + uidFieldSize + gidFieldSize + modeFiledSize)
+			modTimeFieldSize + uidFieldSize + gidFieldSize + modeFieldSize)
 	}
 
 	return writeHeader(w.f, hdr)
@@ -109,7 +109,7 @@ func (w *fileWriter) finalizeEntry() error {
 			return fmt.Errorf("correcting file size: %w", err)
 		}
 	default: // direct mode
-		// check if the advertized file size was written
+		// check if the advertised file size was written
 		if w.currentEntrySize != w.currentHeader.Size {
 			return fmt.Errorf(
 				"%d bytes missing for file %s of size %d: %w",

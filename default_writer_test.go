@@ -42,7 +42,7 @@ func TestDefaultWriterAutoCorrect(t *testing.T) {
 		Size: UnknownSize,
 	}
 
-	// file will be writing in two write calls
+	// file will be written in two write calls
 	fileTwo := append(bytes.Repeat([]byte("Y"), 3), bytes.Repeat([]byte("Z"), 3)...)
 
 	err = aw.WriteHeader(&hdrTwo)
@@ -184,7 +184,7 @@ func TestDefaultReCreateEvenFile(t *testing.T) {
 	}
 }
 
-func TestDefaulReCreateEvenFileUnknownSize(t *testing.T) {
+func TestDefaultReCreateEvenFileUnknownSize(t *testing.T) {
 	t.Parallel()
 
 	buf := &bytes.Buffer{}

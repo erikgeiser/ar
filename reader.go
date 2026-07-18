@@ -19,9 +19,9 @@ type Reader struct {
 	// characters.
 	DisableBSDExtensions bool
 
-	// DisableGnuExtensions disables parsing the System V/Gnu file format. If
+	// DisableGnuExtensions disables parsing the System V/GNU file format. If
 	// this is disabled, the file names and data of ar files written with the
-	// Gnu/binutils ar program will be corrupt if a file name is longer than 16
+	// GNU/binutils ar program will be corrupt if a file name is longer than 16
 	// characters.
 	DisableGnuExtensions bool
 
@@ -64,6 +64,9 @@ func (r *Reader) Next() (*Header, error) {
 		}
 	}
 
+	r.remainingSize = 0
+	r.expectPadding = false
+
 	var hdr Header
 
 	err := r.parseHeader(&hdr)
@@ -73,10 +76,8 @@ func (r *Reader) Next() (*Header, error) {
 
 	r.remainingSize = hdr.Size
 
-	// anounce padding
-	if hdr.Size%2 != 0 {
-		r.expectPadding = true
-	}
+	// announce padding
+	r.expectPadding = hdr.Size%2 != 0
 
 	return &hdr, nil
 }
@@ -126,12 +127,19 @@ func (r *Reader) parseHeader(hdr *Header) error {
 
 	switch {
 	case hdr.Name == gnuExtendedFormatNameTable && !r.DisableGnuExtensions:
-		// read the Gnu file name lookup table of
+		// read the GNU file name lookup table
 		r.gnuNameBuffer = make([]byte, hdr.Size)
 
-		_, err := r.r.Read(r.gnuNameBuffer)
+		_, err := io.ReadFull(r.r, r.gnuNameBuffer)
 		if err != nil {
-			return fmt.Errorf("read GNU name table")
+			return fmt.Errorf("read GNU name table: %w", err)
+		}
+
+		if hdr.Size%2 != 0 {
+			_, err = io.CopyN(io.Discard, r.r, 1)
+			if err != nil {
+				return fmt.Errorf("skip GNU name table padding: %w", err)
+			}
 		}
 
 		nextHeader, err := r.Next()
@@ -144,23 +152,23 @@ func (r *Reader) parseHeader(hdr *Header) error {
 
 		return nil
 	case len(gnuExtendedNameOffset) == 2 && !r.DisableGnuExtensions:
-		// lookup actual file name from the Gnu file name lookup table
+		// lookup actual file name from the GNU file name lookup table
 		if r.gnuNameBuffer == nil {
 			return fmt.Errorf("encountered name reference without prior name table declaration")
 		}
 
 		nameOffset, err := strconv.Atoi(gnuExtendedNameOffset[1])
 		if err != nil {
-			return fmt.Errorf("parse BSD extended name offset: %w", err)
+			return fmt.Errorf("parse GNU extended name offset: %w", err)
 		}
 
 		if nameOffset < 0 {
-			return fmt.Errorf("invalid Gnu name table offset: %w", err)
+			return fmt.Errorf("invalid GNU name table offset: %d", nameOffset)
 		}
 
 		if nameOffset >= len(r.gnuNameBuffer) {
-			return fmt.Errorf( //nolint:stylecheck
-				"Gnu name table offset %d out of bounds for table of size %d",
+			return fmt.Errorf(
+				"GNU name table offset %d out of bounds for table of size %d",
 				nameOffset, len(r.gnuNameBuffer))
 		}
 
@@ -180,7 +188,7 @@ func (r *Reader) parseHeader(hdr *Header) error {
 
 		nameBuffer := make([]byte, actualNameSize)
 
-		_, err = r.r.Read(nameBuffer)
+		_, err = io.ReadFull(r.r, nameBuffer)
 		if err != nil {
 			return fmt.Errorf("read BSD extended name: %w", err)
 		}
@@ -237,12 +245,12 @@ func parseTraditionalHeader(hdr *Header, rawHeader []byte) (err error) {
 	hdr.GID = gid
 	offset += gidFieldSize
 
-	hdr.Mode, err = unpackOctal(rawHeader[offset : offset+modeFiledSize])
+	hdr.Mode, err = unpackOctal(rawHeader[offset : offset+modeFieldSize])
 	if err != nil {
 		return fmt.Errorf("parse mode: %w", err)
 	}
 
-	offset += modeFiledSize
+	offset += modeFieldSize
 
 	hdr.Size, err = unpackUint64(rawHeader[offset : offset+sizeFieldSize])
 	if err != nil {
@@ -255,7 +263,7 @@ func parseTraditionalHeader(hdr *Header, rawHeader []byte) (err error) {
 func unpackUint64(field []byte) (int64, error) {
 	fieldString := extractFromByteField(field)
 	if fieldString == "" {
-		return 0, nil // Gnu file name lookup tables leave the field empty
+		return 0, nil // GNU file name lookup tables leave the field empty
 	}
 
 	return strconv.ParseInt(fieldString, 10, 64)
@@ -264,7 +272,7 @@ func unpackUint64(field []byte) (int64, error) {
 func unpackOctal(field []byte) (uint32, error) {
 	octalStr := strings.TrimPrefix(extractFromByteField(field), "100")
 	if octalStr == "" {
-		return 0, nil // Gnu file name lookup tables leave the field empty
+		return 0, nil // GNU file name lookup tables leave the field empty
 	}
 
 	i, err := strconv.ParseUint(octalStr, 8, 32)
